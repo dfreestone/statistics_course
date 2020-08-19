@@ -12,8 +12,8 @@ condition <- rep(c("yoga", "neutral"), n/2)
 condition <- sample(condition)
 condition <- factor(condition, levels = c("neutral", "yoga"))
 
-b0 <- 18
-b1 <- -3
+b0 <- 17
+b1 <- -2
 sigma <- 2
 
 mu_pre <- b0
