@@ -7,7 +7,7 @@
 
 library(tidyverse)
 
-n <- 30
+n <- 50
 condition <- rep(c("yoga", "neutral"), n/2)
 condition <- sample(condition)
 condition <- factor(condition, levels = c("neutral", "yoga"))
@@ -29,7 +29,7 @@ data <- tibble(condition = condition,
                pre_GAD7 = y_pre,
                post_GAD7 = y_post)
 
-fit <- lm(pre_GAD7 ~ 0 + condition,
+fit <- lm(post_GAD7 ~ 1 + condition,
           data = data)
 summary(fit)
 
