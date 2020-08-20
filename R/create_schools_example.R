@@ -38,7 +38,6 @@ data$PHQ9 <- y
 # shuffle the data
 data <- sample_frac(data, 1L)
 
-
 model <- formula(PHQ9 ~ 1 + school)
 fit <- lm(model, data)
 summary(fit)
