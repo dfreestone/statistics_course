@@ -55,3 +55,23 @@ fit <- lm(model, data)
 summary(fit)
 
 data %>% write_csv("data/schools_depression.csv")
+
+contrasts(factor(data$school))
+
+model.matrix(PHQ9 ~ 0 + school, data)
+
+install.packages("ggdag")
+dag2 <- ggdag::dagify(PHQ9 ~ school + year,
+                      year ~ school,
+                      outcome = "PHQ9")
+
+g <- ggdag::ggdag(dag2,
+             node_size = 14,
+             text_size = 3,
+             text_col = "white",
+             label_col = "white") +
+  ggdag::theme_dag_blank()
+ggsave("R/output/simple_school_year_interaction_DAG.png", plot = g, width = 3, height = 3)
+
+
+dagitty::dagitty()
