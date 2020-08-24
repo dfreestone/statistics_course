@@ -2,7 +2,7 @@
 #' title: bart_assignment.R
 #' author: David M. Freestone (freestoned@wpunj.edu)
 #' date: "2020.08.24"
-#' purpose: 
+#' purpose:
 #' ---
 
 library(magrittr)
@@ -25,33 +25,47 @@ data %<>%
          gender = factor(gender, levels = c("female", "male")),
          balloon_color = factor(balloon_color, levels = c("red", "green", "blue")))
 
-X <- select(data, press_count, gender, balloon_color)
-X <- model.matrix(press_count ~ 1 + gender*balloon_color, data=X)
 
 # beta's for gad7
-#  (Intercept), gendermale, balloon_colorgreen, balloon_colorblue, 
-#   gendermale:balloon_colorgreen, gendermale:balloon_colorblue
-b <- c(8, 3, 0, 0, 0, 0) 
+#  (Intercept), gendermale, balloon_colorgreen, balloon_colorblue,
+X <- select(data, press_count, gender, balloon_color)
+X <- model.matrix(press_count ~ 1 + gender + balloon_color, data=X)
+b <- c(8, 8, 0, 0)
 yhat <- X %*% b
-data$gad7 <- round(rnorm(N, yhat, 3))
+y <- -1
+while (any(y < 0 | y > 21)) {y <- round(rnorm(N, yhat, 3))}
+data$gad7 <- y
 
 # sanity check looks good
-summary(lm(gad7 ~ 1 + gender*balloon_color, data=data))
+summary(lm(gad7 ~ 1 + gender + balloon_color, data=data))
 
 # beta's for press_count (depends on gad7)
 X <- select(data, press_count, gender, balloon_color, gad7)
 X <- mutate(data, gad7 = scale(gad7))
-X <- model.matrix(press_count ~ 1 + gender*balloon_color + gad7, data=X)
-# (Intercept), gendermale, balloon_colorgreen,
-# balloon_colorblue, gad7, gendermale:balloon_colorgreen
-# gendermale:balloon_colorblue
-b <- c(24, 6, 30, 100, -2, -2, -6) 
-yhat <- -1
-while (any(yhat < 0)) { yhat <- X %*% b }
+X <- model.matrix(press_count ~ 1 + gender + balloon_color * gad7, data=X)
+# (Intercept), gendermale, balloon_colorgreen, balloon_colorblue,
+# gad7, balloon_colorgreen:gad7, balloon_colorblue:gad7
+b <- c(24, 15, 30, 100, -2, -3, -4)
+yhat <- X %*% b
+y <- -1
+while (any(y < 0)) {y <- round(rnorm(N, yhat, 3))}
+data$press_count <- y
 
-data$press_count <- round(rnorm(N, yhat, 5))
+ggplot(data) +
+  geom_point(
+    aes(x = gad7,
+        y = press_count,
+        color = gender)
+  )
 
 # sanity check looks good
-summary(lm(press_count ~ 1 + gender*balloon_color + gad7, data=data))
+summary(lm(press_count ~ 1 + probability, data=data))
+summary(lm(press_count ~ 1 + gad7, data=data))
+summary(lm(press_count ~ 1 + balloon_color + gad7, data=data))
+summary(lm(press_count ~ 1 + gender + balloon_color * gad7, data=data))
 
 data %>% write_csv("data/bart_assignment.csv")
+
+data <- read_csv("data/bart_assignment.csv")
+
+summary(lm(press_count ~ 1 + gad7, data=data))
