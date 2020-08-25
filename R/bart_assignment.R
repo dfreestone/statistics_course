@@ -63,6 +63,34 @@ summary(lm(press_count ~ 1 + probability, data=data))
 summary(lm(press_count ~ 1 + gad7, data=data))
 summary(lm(press_count ~ 1 + balloon_color + gad7, data=data))
 summary(lm(press_count ~ 1 + gender + balloon_color * gad7, data=data))
+summary(lm(press_count ~ 1 + balloon_color * gad7, data=data))
+summary(lm(press_count ~ 1 + balloon_color  + gender* gad7, data=data))
+
+ggplot(data) +
+  geom_point(
+    aes(x = gad7,
+        y = press_count,
+        color = balloon_color)
+  ) +
+  geom_smooth(
+    method = "lm",
+    aes(x = gad7,
+        y = press_count,
+        group = balloon_color)
+  )
+
+ggplot(data) +
+  geom_point(
+    aes(x = gad7,
+        y = press_count,
+        color = gender)
+  ) +
+  geom_smooth(
+    method = "lm",
+    aes(x = gad7,
+        y = press_count,
+        group = gender)
+  )
 
 data %>% write_csv("data/bart_assignment.csv")
 
