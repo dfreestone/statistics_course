@@ -92,7 +92,20 @@ ggplot(data) +
         group = gender)
   )
 
+dag2 <- ggdag::dagify(press_count ~ gender + balloon_color + gad7,
+                      outcome = "press_count")
+
+g <- ggdag::ggdag(dag2,
+                  node_size = 30,
+                  text_size = 3,
+                  label_size = 3,
+                  text_col = "white",
+                  label_col = "white") +
+  ggdag::theme_dag_blank()
+ggsave("R/output/bart_correct_dag.png", plot = g, width = 3, height = 3)
+
 data %>% write_csv("data/bart_assignment.csv")
+
 
 data <- read_csv("data/bart_assignment.csv")
 
