@@ -74,6 +74,9 @@ rescale_vars <- function(df) {
                 values_from = ".x") %>%
     select(-id)
 
+  it %<>%
+    mutate(across(everything(), round))
+
   return(it)
 }
 
