@@ -122,7 +122,11 @@ models <- list(fork = fork,
 dag <- map(models, create_dag)
 adjustment_sets <- map(dag, adjustmentSets)
 implied_independence <- map(dag, impliedConditionalIndependencies)
-map(dag, draw_dag)
+g <- map(dag, draw_dag)
+
+g$all_confounds + ggsave("R/output/dose_phq_dag.png", units="mm", width=90, height=90, scale=1.5)
+# filenames <- glue("output/{names(models)}.png")
+# map2(g, filenames, ~.x+ggsave(.y, units="mm", width=90, height=90, scale=2))
 
 data <- map(models, lavaan::simulateData, sample.nobs = 100)
 data <- map(data, as_tibble)
@@ -178,3 +182,44 @@ lm(dose ~ 1 + sunlight + activity, data=data$all_confounds) %>% summary()
 # [x] phq9 _||_ snlg | actv
 lm(phq9 ~ 1 + sunlight + activity, data=data$all_confounds) %>% summary()
 
+## Graphs for showing confounds
+# FORK
+ggdag(dagify(x ~ z,
+             y ~ z,
+             exposure = "x",
+             outcome = "y"),
+      node_size = 21,
+      text_size = 5) +
+  ggdag::theme_dag_blank() +
+  ggsave("R/output/fork_dag.png", units = "mm", width = 90, height = 90, scale=1.5)
+
+# PIPE
+ggdag(dagify(z ~ x,
+             y ~ z,
+             exposure = "x",
+             outcome = "y"),
+      node_size = 21,
+      text_size = 5) +
+  ggdag::theme_dag_blank() +
+  ggsave("R/output/pipe_dag.png", units = "mm", width = 90, height = 90, scale=1.5)
+
+# COLLIDER
+ggdag(dagify(z ~ x,
+             z ~ y,
+             exposure = "x",
+             outcome = "y"),
+      node_size = 21,
+      text_size = 5) +
+  ggdag::theme_dag_blank() +
+  ggsave("R/output/collider_dag.png", units = "mm", width = 90, height = 90, scale=1.5)
+
+# DESCENDENT
+ggdag(dagify(z ~ x,
+             y ~ z,
+             u ~ z,
+             exposure = "x",
+             outcome = "y"),
+      node_size = 21,
+      text_size = 5) +
+  ggdag::theme_dag_blank() +
+  ggsave("R/output/descendent_dag.png", units = "mm", width = 90, height = 90, scale=1.5)
